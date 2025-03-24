@@ -7,7 +7,7 @@ class Category(models.Model):
     name1 = models.CharField(max_length = 10, default = '')
     name2 = models.CharField(max_length = 10, default = '')
     slug = models.SlugField( default = '')
-    background = models.ImageField(null = True, blank= True)
+    background = models.ImageField()
 
     def __str__(self):
         return self.slug
@@ -16,7 +16,7 @@ class Customer(models.Model):
     user = models.OneToOneField(User, on_delete = models.CASCADE)
     first_name = models.CharField(max_length = 20)
     last_name = models.CharField(max_length = 20)
-    email = models.EmailField(max_length = 30)
+    email = models.EmailField()
 
     def __str__(self):
         """modelling bank users"""
@@ -81,4 +81,11 @@ class Order(models.Model):
 
 
     def __str__(self):
-        return f'Order for {self.customer.first_name} on {str(self.time)}' 
+        return f'Order for {self.customer.first_name} on {str(self.time)}'
+
+class CompanyName(models.Model):
+    name = models.CharField(max_length = 20)
+    phoneNumber = models.CharField(max_length = 15)
+
+    def __str__(self):
+        return f'This company name is {self.name}'

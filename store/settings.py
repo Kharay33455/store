@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -20,13 +23,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 
+debug_value = os.getenv('DEBUG')
+if debug_value == 'TRUE':
+    DEBUG = True
+else:
+    DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+allowed_host_1 = os.getenv('ALLOWED_HOSTS_1')
+allowed_host_2 = os.getenv('ALLOWED_HOSTS_2')
 
+if allowed_host_2 == 'none':
+    ALLOWED_HOSTS = [allowed_host_1]
+else:
+    ALLOWED_HOSTS = [allowed_host_1, allowed_host_2]
 
 # Application definition
 
@@ -118,12 +130,16 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
-"""STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static')
-]
-"""
+
+
+if debug_value == 'TRUE':    
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'static')
+    ]
+else:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
 
 
 

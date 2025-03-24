@@ -29,7 +29,5 @@ urlpatterns = [
     path('register/', views.registration_request, name='register'),
     path('<slug:catslug>/test', views.test, name='test'),
     path('cat-frame/', views.catframe, name='catframe'),
-    path('search/', views.search, name='search'),
-
-    
+    path('search/', views.search, name='search'),   
 ]

@@ -1,3 +1,4 @@
 .env
 senc
 images
+db.sqlite3

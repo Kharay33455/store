@@ -9,6 +9,12 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 # Create your views here.
 
+def getCompanyDets():
+    company = CompanyName.objects.first()
+    name = company.name
+    number = company.phoneNumber
+
+    return {"name" : name, "number" : number}
 
 def login_request(request):
     if request.method == 'POST':
@@ -71,13 +77,14 @@ def logout_request(request):
 
 
 def store(request):
+    company = getCompanyDets()
     if request.user.is_authenticated:
 
         products = Product.objects.all()
         customer =  Customer.objects.get(user = request.user)
         customer_cart, created = Cart.objects.get_or_create(customer = customer)
         cat = Category.objects.all()[:5]
-        context = {'products': products, 'customer': customer, 'customer_cart': customer_cart, 'cat':cat}
+        context={ 'company_name' : company['name'], 'company_number' : company['number'], 'products': products, 'customer': customer, 'customer_cart': customer_cart, 'cat':cat}
 
 
         return render(request, 'base/store.html', context)
@@ -86,47 +93,51 @@ def store(request):
         cat = Category.objects.all()[:5]
 
 
-        context={'products': products, 'cat':cat}
+        context={ 'company_name' : company.name, 'company_number' : company.phoneNumber, 'products': products, 'cat':cat}
         return render(request, 'base/store.html', context)
 
 def category(request):
+    company = getCompanyDets()
     if request.user.is_authenticated:
         customer =  Customer.objects.get(user = request.user)
         customer_cart, created = Cart.objects.get_or_create(customer = customer)
         categories = Category.objects.all()
-        context = {'categories': categories, 'customer':customer, 'customer_cart': customer_cart}
+        context = { 'company_number' : company['number'], 'categories': categories, 'customer':customer, 'customer_cart': customer_cart}
         return render(request, 'base/category.html', context)
     else:
 
         categories = Category.objects.all()
-        context = {'categories': categories}
+        context = { 'company_number' : company.phoneNumber, 'categories': categories}
         return render(request, 'base/category.html', context)
 
 def new(request):
+    company = getCompanyDets()
+
     if request.user.is_authenticated:
 
         customer =  Customer.objects.get(user = request.user)
         customer_cart, created = Cart.objects.get_or_create(customer = customer)
         products = Product.objects.all().order_by('-time_added')[:20]
-        context = {'products':products, 'customer':customer, 'customer_cart': customer_cart}
+        context = { 'company_name' : company['name'], 'company_number' : company['number'] , 'products':products, 'customer':customer, 'customer_cart': customer_cart}
         return render(request, 'base/new.html', context)
     else:
         products = Product.objects.all().order_by('-time_added')[:20]
-        context = {'products':products}
+        context = { 'company_name' : company['name'], 'company_number' : company['number'] , 'products':products}
         return render(request, 'base/new.html', context)
 
 def cat(request, slug):
+    company = getCompanyDets()
     if request.user.is_authenticated:
         customer =  Customer.objects.get(user = request.user)
         customer_cart, created = Cart.objects.get_or_create(customer = customer)
         cat = Category.objects.get(slug = slug)
         product = Product.objects.filter(categories = cat).order_by('-time_added')
-        context = {'products':product, 'cat': cat, 'customer':customer, 'customer_cart': customer_cart}
+        context = { 'company_number' : company['number'], 'products':product, 'cat': cat, 'customer':customer, 'customer_cart': customer_cart}
         return render(request, 'base/cat.html', context)
     else:
         cat = Category.objects.get(slug = slug)
         product = Product.objects.filter(categories = cat)
-        context = {'products':product, 'cat': cat}
+        context = { 'company_number' : company['number'], 'products':product, 'cat': cat}
         return render(request, 'base/cat.html', context)
 
 @xframe_options_sameorigin
@@ -182,6 +193,7 @@ def product(request, catslug, prodslug):
         context ={'cat': cat, 'product':products}
         return render (request, 'base/product.html', context)
 def cart(request):
+    company = getCompanyDets()
     if request.user.is_authenticated:
 
         customer =  Customer.objects.get(user = request.user)
@@ -201,7 +213,7 @@ def cart(request):
         customer_cart.save()
 
 
-        context = {'customer': customer, 'total':total, 'items':items, 'customer_cart': customer_cart}
+        context = {'company_number' : company['number'],'customer': customer, 'total':total, 'items':items, 'customer_cart': customer_cart}
         return render(request, 'base/cart.html', context)
     else:
         return HttpResponseRedirect(reverse('store:login'))
@@ -232,6 +244,7 @@ def update(request, id, do):
 
 
 def checkout(request):
+    company = getCompanyDets()
     if request.user.is_authenticated:
 
         customer =  Customer.objects.get(user = request.user)
@@ -250,7 +263,7 @@ def checkout(request):
         shipping = ShippingInformation.objects.filter(customer = customer)
 
 
-        context = {'customer': customer, 'total':total, 'shipping':shipping, 'items':items, 'customer_cart': customer_cart}
+        context = {'company_number':company['number'], 'customer': customer, 'total':total, 'shipping':shipping, 'items':items, 'customer_cart': customer_cart}
         return render(request, 'base/checkout.html', context)
     else:
         return HttpResponseRedirect(reverse('store:login'))
@@ -478,12 +491,13 @@ def empty(request):
         return HttpResponseRedirect(reverse('store:login'))
 
 def profile(request):
+    company = getCompanyDets()
     if request.user.is_authenticated:
         customer = Customer.objects.get(user = request.user)
         customer_cart = Cart.objects.get(customer = customer)
         orders = Order.objects.filter(customer = customer).order_by('-time')[:10]
         shippings = ShippingInformation.objects.filter(customer = customer)
-        context = {'customer': customer, 'customer_cart':customer_cart, 'orders':orders , 'shippings':shippings}
+        context = {'company_number' : company['number'],'customer': customer, 'customer_cart':customer_cart, 'orders':orders , 'shippings':shippings}
         return render(request, 'base/profile.html', context)
     else:
         return HttpResponseRedirect(reverse('store:login'))
@@ -492,6 +506,7 @@ def profile(request):
 
 
 def search(request):
+    company = getCompanyDets()
     if request.method == 'POST':
 
         if request.user.is_authenticated:
@@ -502,7 +517,7 @@ def search(request):
             products = Product.objects.filter(name__icontains=search)
             cats = Category.objects.filter(name1__icontains = search)
             cats2 = Category.objects.filter(name2__icontains = search)
-            context = {'customer': customer, 'customer_cart': customer_cart, 'search':search, 'products':products, 'cats': cats, 'cats2':cats2}
+            context = { 'company_number':company['number'], 'customer': customer, 'customer_cart': customer_cart, 'search':search, 'products':products, 'cats': cats, 'cats2':cats2}
             return render(request, 'base/search.html', context)
 
         else:
@@ -511,5 +526,5 @@ def search(request):
             products = Product.objects.filter(name__icontains=search)
             cats = Category.objects.filter(name1__icontains = search)
             cats2 = Category.objects.filter(name2__icontains = search)
-            context = {'search':search, 'products':products, 'cats':cats, 'cats2':cats2}
+            context = { 'company_number':company['number'], 'search':search, 'products':products, 'cats':cats, 'cats2':cats2}
             return render(request, 'base/search.html', context)
