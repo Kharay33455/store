@@ -93,7 +93,7 @@ def store(request):
         cat = Category.objects.all()[:5]
 
 
-        context={ 'company_name' : company.name, 'company_number' : company.phoneNumber, 'products': products, 'cat':cat}
+        context={ 'company_name' : company['name'], 'company_number' : company['number'], 'products': products, 'cat':cat}
         return render(request, 'base/store.html', context)
 
 def category(request):
@@ -107,7 +107,7 @@ def category(request):
     else:
 
         categories = Category.objects.all()
-        context = { 'company_number' : company.phoneNumber, 'categories': categories}
+        context = { 'company_number' : company['number'], 'categories': categories}
         return render(request, 'base/category.html', context)
 
 def new(request):
